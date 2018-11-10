@@ -14,11 +14,12 @@ func main() {
 	go util.RunMetricWorker(1)
 
 	http.Handle("/metrics", promhttp.Handler())
-	err := http.ListenAndServe(":2112", nil)
 
+	fmt.Println("Prometheus netstat exproter is running on http://0.0.0.0:2112")
+
+	err := http.ListenAndServe(":2112", nil)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("Prometheus netstat exproter is running on http://0.0.0.0:2112")
 }
