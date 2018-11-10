@@ -1,8 +1,9 @@
 package util
 
 import (
-	"netstatex/model"
 	"strings"
+
+	"github.com/drazen-todorovic/netstatex/model"
 )
 
 //ParseNetstatOutput transforms netstat input to slice of NetstatTCPItem, NetstatUDPItem
