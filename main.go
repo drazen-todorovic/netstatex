@@ -3,12 +3,19 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
+
+	"github.com/kardianos/service"
 
 	"github.com/drazen-todorovic/netstatex/util"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+var logger service.Logger
+
+type program struct{}
 
 var (
 	interval int
@@ -21,8 +28,16 @@ func init() {
 	flag.Parse()
 }
 
-func main() {
+func (p *program) Start(s service.Service) error {
+	go p.run()
+	return nil
+}
 
+func (p *program) Stop(s service.Service) error {
+	return nil
+}
+
+func (p *program) run() {
 	go util.RunMetricWorker(interval)
 
 	http.Handle("/metrics", promhttp.Handler())
@@ -36,5 +51,28 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+}
 
+func main() {
+	svcConfig := &service.Config{
+		Name:        "netstatex",
+		DisplayName: "Netstat Exporter",
+		Description: "Prometheus netstat exporter",
+	}
+
+	prg := &program{}
+
+	s, err := service.New(prg, svcConfig)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	logger, err = s.Logger(nil)
+
+	err = s.Run()
+
+	if err != nil {
+		logger.Error(err)
+	}
 }
